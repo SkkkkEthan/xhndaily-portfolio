@@ -499,7 +499,7 @@
         renderConsole(consoleIndex + 1);
       }
       scheduleConsole();
-    }, 5000);
+    }, 3000);
   };
   const renderConsole = async (index, keyboard = false) => {
     if (activeScreenTransition) return;
@@ -682,5 +682,6 @@
   document.addEventListener('visibilitychange',scheduleConsole);
   renderConsole(0,true); scheduleConsole();
 })();
+
 
 
