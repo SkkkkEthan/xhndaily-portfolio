@@ -538,9 +538,16 @@
   });
   document.querySelectorAll('[data-console-target]').forEach(button => {
     const showTooltip = () => {
-      consoleTooltip.querySelector('strong').textContent=button.dataset.consoleLabel;
-      consoleTooltip.querySelector('small').textContent=button.dataset.consoleCopy;
-      consoleTooltip.hidden=false;
+      requestAnimationFrame(() => {
+        if (document.activeElement !== button && !button.matches(':hover')) return;
+        consoleTooltip.querySelector('strong').textContent=button.dataset.consoleLabel;
+        consoleTooltip.querySelector('small').textContent=button.dataset.consoleCopy;
+        const box = button.getBoundingClientRect();
+        consoleTooltip.style.position='fixed'; consoleTooltip.style.right='auto';
+        consoleTooltip.style.left=`${Math.max(16, Math.min(innerWidth-266, box.right+18))}px`;
+        consoleTooltip.style.top=`${Math.max(header.getBoundingClientRect().bottom+12, Math.min(innerHeight-100,box.top-82))}px`;
+        consoleTooltip.hidden=false;
+      });
     };
     button.addEventListener('pointerenter', showTooltip);
     button.addEventListener('focus', showTooltip);
