@@ -22,7 +22,7 @@
   };
 
   document.querySelector('#game-list').innerHTML = data.games.map((game, index) => `
-    <article class="game-card reveal" data-game="${esc(game.id)}">
+    <article class="game-card reveal" id="work-${esc(game.id)}" data-game="${esc(game.id)}">
       <header class="game-card-heading">
         <h3>${esc(game.title)}</h3><span class="game-type">${esc(game.type)}</span>
         <p class="game-summary"><strong>核心玩法</strong>${esc(game.summary)}</p>
@@ -198,7 +198,7 @@
     let state = 'idle', percent = null, blobUrl = '', hovered = false, focused = false;
     let retryAt = 0;
     const refresh = () => {
-      const wanted = (hovered || focused) && !motionPaused && !document.hidden;
+      const wanted = (hovered || focused) && !motionPaused && !document.hidden && !card.classList.contains('transition-target');
       image.src = wanted && state === 'ready' ? blobUrl : image.dataset.poster;
       status.hidden = !wanted || state === 'ready' || state === 'idle';
       if (status.hidden) return;
@@ -491,29 +491,31 @@
   const consoleTooltip = document.querySelector('.console-tooltip');
   let consoleIndex = 0, consolePaused = false, consoleHovered = false;
   let consoleTimer = 0, consoleRequest = 0;
+  let activeScreenTransition = null;
   const scheduleConsole = () => {
     clearTimeout(consoleTimer);
     consoleTimer = setTimeout(() => {
-      if (heroVisible && !consolePaused && !consoleHovered && !motionPaused && !document.hidden && !detail.open && !command.open && !(consoleStage.contains(document.activeElement) && document.activeElement.matches(':focus-visible'))) {
+      if (heroVisible && !activeScreenTransition && !consolePaused && !consoleHovered && !motionPaused && !document.hidden && !detail.open && !command.open && !(consoleStage.contains(document.activeElement) && document.activeElement.matches(':focus-visible'))) {
         renderConsole(consoleIndex + 1);
       }
       scheduleConsole();
     }, 5000);
   };
   const renderConsole = async (index, keyboard = false) => {
+    if (activeScreenTransition) return;
     const next = (index + data.games.length) % data.games.length;
     const game = data.games[next];
     const request = ++consoleRequest;
     const preview = new Image(); preview.src = game.poster;
     try { await preview.decode(); } catch { return; }
-    if (request !== consoleRequest) return;
+    if (request !== consoleRequest || activeScreenTransition) return;
     consoleIndex = next;
     consolePoster.src = game.poster; consolePoster.alt = `${game.title}游戏画面`;
     document.querySelector('#console-title').textContent = game.title;
     document.querySelector('#console-type').textContent = game.type;
     document.querySelector('#console-summary').textContent = game.summary;
     consoleCount.textContent = `${String(next+1).padStart(2,'0')} / ${data.games.length}`;
-    consoleScreen.setAttribute('aria-label', `${game.title}：查看设计说明`);
+    consoleScreen.setAttribute('aria-label', `${game.title}：前往作品介绍`);
     animate(consolePoster, [{opacity:.45},{opacity:1}], {duration:240}, keyboard);
   };
   const stepConsole = (step, keyboard = false) => {
@@ -522,7 +524,129 @@
   document.querySelector('.console-prev').addEventListener('click', event => stepConsole(-1, event.detail===0));
   document.querySelector('.console-next').addEventListener('click', event => stepConsole(1, event.detail===0));
   document.querySelectorAll('[data-console-step]').forEach(button => button.addEventListener('click', event => stepConsole(Number(button.dataset.consoleStep),event.detail===0)));
-  consoleScreen.addEventListener('click', event => showDetail(data.games[consoleIndex], consoleScreen, event.detail===0));
+  // Carry the same decoded cover from the console screen to its actual work card.
+  const revealWork = card => {
+    document.querySelectorAll('#games .reveal').forEach(item => item.classList.add('revealed'));
+    card.classList.add('revealed');
+    const image = card.querySelector('img');
+    image.src = image.dataset.poster;
+    const y = scrollY + card.getBoundingClientRect().top - header.getBoundingClientRect().height - 24;
+    window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+    history.replaceState(null,'',`#${card.id}`);
+    updateNav();
+  };
+  const arriveAtWork = (card, keyboard) => {
+    revealWork(card);
+    const heading = card.querySelector('h3');
+    heading.setAttribute('tabindex','-1');
+    heading.focus({preventScroll:true});
+    if (!keyboard && !motionPaused && !reduced.matches) {
+      card.classList.add('work-arrived');
+      setTimeout(() => card.classList.remove('work-arrived'),1100);
+    }
+  };
+  const enterConsoleWork = async (game, keyboard) => {
+    if (activeScreenTransition) return;
+    const card = [...document.querySelectorAll('.game-card')].find(item => item.dataset.game === game.id);
+    if (!card) return;
+    if (keyboard || motionPaused || reduced.matches || !Element.prototype.animate) {
+      arriveAtWork(card,keyboard); return;
+    }
+    const controller = new AbortController();
+    activeScreenTransition = controller;
+    ++consoleRequest; clearTimeout(consoleTimer);
+    consoleTooltip.hidden = true;
+    consoleScreen.setAttribute('aria-busy','true');
+    const running = new Set();
+    const main = document.querySelector('main');
+    const previousMainInert = main.inert, previousHeaderInert = header.inert;
+    let overlay;
+    const abort = () => controller.abort();
+    const stopIfHidden = () => { if(document.hidden)abort(); };
+    const stopForMotion = () => { if(reduced.matches)abort(); };
+    const escape = event => { if(event.key==='Escape'){event.preventDefault();abort();} };
+    const play = (element,frames,options) => {
+      if(controller.signal.aborted)throw new Error('Transition cancelled');
+      const animation=element.animate(frames,{fill:'forwards',easing:'cubic-bezier(.77,0,.175,1)',...options});
+      running.add(animation);
+      return animation.finished.finally(()=>running.delete(animation));
+    };
+    controller.signal.addEventListener('abort',()=>running.forEach(animation=>animation.cancel()),{once:true});
+    addEventListener('resize',abort,{once:true});
+    document.addEventListener('visibilitychange',stopIfHidden);
+    document.addEventListener('keydown',escape,true);
+    reduced.addEventListener('change',stopForMotion);
+    try {
+      const source = consoleScreen.getBoundingClientRect();
+      const stage = consoleStage.querySelector('.console-stage').getBoundingClientRect();
+      const width = innerWidth, height = innerHeight;
+      const picture = new Image(); picture.src=game.poster;
+      await picture.decode();
+      const photo=document.createElement('div');photo.append(picture);
+      const fitPhoto=(w,h,mode='cover')=>{
+        const scale=(mode==='contain'?Math.min:Math.max)(w/picture.naturalWidth,h/picture.naturalHeight);
+        const pw=picture.naturalWidth*scale,ph=picture.naturalHeight*scale;
+        return {left:`${(w-pw)/2}px`,top:`${(h-ph)/2}px`,width:`${pw}px`,height:`${ph}px`};
+      };
+      if(controller.signal.aborted)throw new Error('Transition cancelled');
+      overlay=document.createElement('div');overlay.className='screen-transition';overlay.setAttribute('aria-hidden','true');overlay.inert=true;
+      const shade=document.createElement('div');shade.className='transition-shade';
+      const device=document.createElement('div');device.className='transition-device';
+      const clone=consoleStage.querySelector('.console-stage').cloneNode(true);
+      clone.querySelectorAll('[id]').forEach(item=>item.removeAttribute('id'));
+      clone.querySelectorAll('.console-key,.console-tooltip,.console-screen-caption').forEach(item=>item.remove());
+      Object.assign(clone.style,{position:'absolute',left:`${stage.left}px`,top:`${stage.top}px`,width:`${stage.width}px`,height:`${stage.height}px`});
+      device.append(clone);
+      photo.className='transition-poster';picture.alt='';
+      Object.assign(picture.style,fitPhoto(source.width,source.height));
+      Object.assign(photo.style,{left:`${source.left}px`,top:`${source.top}px`,width:`${source.width}px`,height:`${source.height}px`});
+      overlay.append(shade,device,photo);document.body.append(overlay);
+      main.inert=true;header.inert=true;
+      document.documentElement.classList.add('screen-travelling');
+      const scale=Math.max(width/source.width,height/source.height);
+      const dx=width/2-(source.left+source.width/2)*scale;
+      const dy=height/2-(source.top+source.height/2)*scale;
+      // Brief press response, followed by a shared cover that expands into the viewport.
+      await play(photo,[{opacity:0},{opacity:1}],{duration:110,easing:'ease-out'});
+      await Promise.all([
+        play(shade,[{opacity:0},{opacity:1}],{duration:180}),
+        play(device,innerWidth<=700?[{opacity:1},{opacity:0}]:[{transform:'translate(0,0) scale(1)'},{transform:`translate(${dx}px,${dy}px) scale(${scale})`}],{duration:380}),
+        play(photo,[{left:`${source.left}px`,top:`${source.top}px`,width:`${source.width}px`,height:`${source.height}px`},{left:'0px',top:'0px',width:`${width}px`,height:`${height}px`}],{duration:380}),
+        play(picture,[fitPhoto(source.width,source.height),fitPhoto(width,height)],{duration:380})
+      ]);
+      device.remove();
+      card.classList.add('transition-target');
+      revealWork(card);
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      if(controller.signal.aborted)throw new Error('Transition cancelled');
+      // Measure again after scrolling, including the header's compact state.
+      revealWork(card);
+      const destination=card.querySelector('.game-image-link').getBoundingClientRect();
+      const fit=getComputedStyle(card.querySelector('.game-image-link img')).objectFit;
+      const background=getComputedStyle(card.querySelector('.game-image-link')).backgroundColor;
+      await Promise.all([
+        play(shade,[{opacity:1},{opacity:0}],{duration:160}),
+        play(photo,[{left:'0px',top:'0px',width:`${width}px`,height:`${height}px`,backgroundColor:'#08090d'},{left:`${destination.left}px`,top:`${destination.top}px`,width:`${destination.width}px`,height:`${destination.height}px`,backgroundColor:background}],{duration:380}),
+        play(picture,[fitPhoto(width,height),fitPhoto(destination.width,destination.height,fit)],{duration:380})
+      ]);
+    } catch {
+      // Cancellation, image failure or unsupported animation still reaches the intended work.
+    } finally {
+      running.forEach(animation=>animation.cancel());
+      overlay?.remove();
+      document.documentElement.classList.remove('screen-travelling');
+      main.inert=previousMainInert;header.inert=previousHeaderInert;
+      card.classList.remove('transition-target');
+      consoleScreen.removeAttribute('aria-busy');
+      removeEventListener('resize',abort);
+      document.removeEventListener('visibilitychange',stopIfHidden);
+      document.removeEventListener('keydown',escape,true);
+      reduced.removeEventListener('change',stopForMotion);
+      activeScreenTransition=null;
+      arriveAtWork(card,false);scheduleConsole();
+    }
+  };
+  consoleScreen.addEventListener('click',event=>enterConsoleWork(data.games[consoleIndex],event.detail===0));
   consoleStage.addEventListener('keydown', event => {
     if (event.key!=='ArrowLeft' && event.key!=='ArrowRight') return;
     event.preventDefault(); stepConsole(event.key==='ArrowLeft'?-1:1,true);
