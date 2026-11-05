@@ -96,3 +96,12 @@ html[data-theme="dark"] .experience-card:nth-child(4) .company-mark{color:#8bced
 .company-logo-dark{background:#1d202a;border-radius:8px;padding:10px}
 .company-logo-shengqu{height:64px}
 @media(max-width:600px){.company-heading{gap:14px}.company-logo{flex-basis:80px;width:80px;height:40px}.company-logo-dark{padding:7px}.company-logo-shengqu{height:50px}.company-heading .company-mark{font-size:18px}.company-partnership{font-size:12px}}
+
+/* Static-first previews: actual transfer progress, with the poster always underneath. */
+.preview-status{position:absolute;left:16px;right:16px;bottom:16px;display:grid;gap:7px;padding:10px 13px;background:#111720ed;color:#fff;border-radius:8px;pointer-events:none;font-size:12px;line-height:1.5}
+.preview-status[hidden]{display:none}
+.preview-status progress{display:block;width:100%;height:4px;accent-color:#fff;border:0;border-radius:4px;overflow:hidden}
+.preview-status progress[hidden]{display:none}
+.preview-status progress::-webkit-progress-bar{background:#ffffff40}
+.preview-status progress::-webkit-progress-value{background:#fff}
+.game-image-link:has(.preview-status:not([hidden])) .image-hint{opacity:0}

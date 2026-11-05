@@ -29,6 +29,7 @@
       </header>
       <button class="game-image-link" data-detail="${esc(game.id)}" aria-label="查看${esc(game.title)}设计说明">
         <img src="${esc(safe(game.poster))}" data-poster="${esc(safe(game.poster))}" data-motion="${esc(safe(game.media))}" alt="${esc(game.title)}玩法预览" width="768" height="480" loading="lazy" decoding="async">
+        <span class="preview-status" hidden><span class="preview-label"></span><progress max="100" aria-label="动态预览加载进度"></progress></span>
         <span class="image-hint" aria-hidden="true">${icon('arrow')}</span>
       </button>
       <div class="game-caption">
@@ -176,17 +177,88 @@
     openingFrom(detail,trigger,keyboard);
   };
   document.querySelectorAll('[data-detail]').forEach(button=>button.addEventListener('click',event=>showDetail(data.games.find(g=>g.id===button.dataset.detail),button,event.detail===0)));
-  document.querySelectorAll('.game-card').forEach(card=>{
-    const image=card.querySelector('img');
-    let pending=null;
-    card.addEventListener('pointerenter',()=>{
-      if(motionPaused||!finePointer.matches||image.dataset.motion===image.dataset.poster)return;
-      const preview=new Image();preview.decoding='async';pending=preview;
-      preview.onload=()=>{if(pending===preview&&!motionPaused&&!document.hidden&&card.matches(':hover'))image.src=preview.src;};
-      preview.onerror=()=>{if(pending===preview)pending=null;};
-      preview.src=image.dataset.motion;
+  // Posters are independent of animation downloads and remain visible until decoding succeeds.
+  const previewControllers = [];
+  const previewQueue = [];
+  let activePreviewLoads = 0;
+  const drainPreviews = () => {
+    if (activePreviewLoads || !previewQueue.length || document.hidden || motionPaused) return;
+    const task = previewQueue.shift();
+    activePreviewLoads++;
+    task().finally(() => { activePreviewLoads--; drainPreviews(); });
+  };
+  document.querySelectorAll('.game-card').forEach(card => {
+    const image = card.querySelector('img');
+    const button = card.querySelector('.game-image-link');
+    const status = card.querySelector('.preview-status');
+    const label = status.querySelector('.preview-label');
+    const progress = status.querySelector('progress');
+    const source = image.dataset.motion;
+    if (!source || source === image.dataset.poster) return;
+    let state = 'idle', percent = null, blobUrl = '', hovered = false, focused = false;
+    let retryAt = 0;
+    const refresh = () => {
+      const wanted = (hovered || focused) && !motionPaused && !document.hidden;
+      image.src = wanted && state === 'ready' ? blobUrl : image.dataset.poster;
+      status.hidden = !wanted || state === 'ready' || state === 'idle';
+      if (status.hidden) return;
+      label.textContent = state === 'error' ? '动图加载失败，移开后重试' :
+        state === 'decoding' ? '正在准备播放' :
+        percent === null ? '正在加载动态预览' : `正在加载动态预览 ${percent}%`;
+      progress.hidden = state === 'error';
+      if (percent === null || state === 'decoding') progress.removeAttribute('value');
+      else progress.value = percent;
+    };
+    const load = () => new Promise(resolve => {
+      state = 'loading'; percent = null; refresh();
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', source); xhr.responseType = 'blob'; xhr.timeout = 45000;
+      xhr.onprogress = event => {
+        percent = event.lengthComputable ? Math.min(100, Math.floor(event.loaded / event.total * 100)) : null;
+        refresh();
+      };
+      const fail = () => { state = 'error'; retryAt = Date.now() + 3000; refresh(); resolve(); };
+      xhr.onerror = xhr.ontimeout = xhr.onabort = fail;
+      xhr.onload = async () => {
+        if (xhr.status < 200 || xhr.status >= 300) { fail(); return; }
+        const url = URL.createObjectURL(xhr.response);
+        state = 'decoding'; refresh();
+        const decoded = new Image(); decoded.src = url;
+        try { await decoded.decode(); blobUrl = url; state = 'ready'; refresh(); resolve(); }
+        catch { URL.revokeObjectURL(url); fail(); }
+      };
+      xhr.send();
     });
-    card.addEventListener('pointerleave',()=>{pending=null;image.src=image.dataset.poster;});
+    const request = (urgent = false) => {
+      if (motionPaused || !finePointer.matches || document.hidden) return;
+      if (state === 'error' && Date.now() < retryAt) return;
+      if (state === 'idle' || state === 'error') {
+        state = 'queued'; percent = null;
+        previewQueue.push(load);
+      }
+      if (urgent) {
+        const index = previewQueue.indexOf(load);
+        if (index > 0) previewQueue.unshift(previewQueue.splice(index, 1)[0]);
+      }
+      refresh(); drainPreviews();
+    };
+    button.addEventListener('pointerenter', () => { hovered = finePointer.matches; request(true); refresh(); });
+    button.addEventListener('pointerleave', () => { hovered = false; refresh(); });
+    button.addEventListener('focus', () => { focused = finePointer.matches; request(true); refresh(); });
+    button.addEventListener('blur', () => { focused = false; refresh(); });
+    previewControllers.push({refresh, request});
+    // Only queue near-visible previews after the static image has loaded.
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        if (image.complete && image.naturalWidth) request();
+        else image.addEventListener('load', () => request(), {once:true});
+        observer.disconnect();
+      }
+    }, {rootMargin:'240px'});
+    observer.observe(button);
+  });
+  document.addEventListener('visibilitychange', () => {
+    previewControllers.forEach(controller => controller.refresh()); drainPreviews();
   });
 
   const focusButtons=[...document.querySelectorAll('[data-focus]')];
@@ -278,6 +350,8 @@
   };
   updateTheme();
   const updateMotion=()=>{
+    previewControllers.forEach(controller => controller.refresh());
+    if (!motionPaused) drainPreviews();
     document.body.classList.toggle('paused',motionPaused);
     document.querySelector('#motion-control').setAttribute('aria-pressed',String(motionPaused));
     document.querySelector('#motion-control').textContent=motionPaused?'开启动效':'暂停动态效果';
@@ -407,3 +481,4 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)document.querySelectorAll('.game-card img').forEach(img=>{img.src=img.dataset.poster;});});
   // The browser freezes timers in its back/forward cache and resumes them on return.
 })();
+

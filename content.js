@@ -16,8 +16,8 @@ window.PORTFOLIO = {
       "description": "一位伯爵在现代夜城开始新的生活。探索卧室、街区、旧物店等六个地点，认识居民、收集材料、学习手艺，再把所得用于修灯、种花和布置家园。",
       "contribution": "人形负责交谈与操作家具，蝙蝠形态可以自由飞行，探索高处的夜景线索。阅读与动手实践分别记录；修缮需要材料和资金，休息后推进施工与植物成长。",
       "lesson": "进展通过生活中的变化呈现：修好的灯持续亮着，送出的花会被居民带在身边，布置后的家可以邀请朋友来坐。手账根据现有物品和进度提示下一步，让玩家能自由探索，也能随时找回线索。",
-      "poster": "goodnight-count.png",
-      "media": "goodnight-count.png"
+      "poster": "goodnight-count-static.webp",
+      "media": ""
     },
     {
       "id": "ember-below",
@@ -33,8 +33,8 @@ window.PORTFOLIO = {
       "description": "在一张六角地图上带领守炉者生存18回合。选择炉心位置、建设城区、招募军队并探索遗迹，同时应对邻邦与两次黑潮冲击。",
       "contribution": "每回合最多执行两次国策，单位移动和研究选择不占国策。城市区域槽与军队数量有限；可以通过贸易和结盟争取复燃条件，也能宣战并占领邻邦主炉。",
       "lesson": "建设、扩张和备战共用资源与行动次数，不能只追求眼前产量。黑潮给发展设置明确期限；复燃与征服需要不同准备，但两条道路最终都要经受生存考验。",
-      "poster": "ember-below.png",
-      "media": "ember-below.png"
+      "poster": "ember-below-static.webp",
+      "media": ""
     },
     {
       "id": "ghost-house",
@@ -50,8 +50,8 @@ window.PORTFOLIO = {
       "description": "三夜守宅闯关。移动与瞄准鬼叫，消耗道士的胆气，把他们吓出旧宅；每夜结束后选择强化，并逐步解锁更强的鬼影能力。",
       "contribution": "鬼叫蓄力后锁定方向，绕背能提高惊吓并打断镜师施法。穿身可取消蓄力，熄灯会减缓追踪；附身陶罐时不能攻击，但能避险并恢复少量鬼气。",
       "lesson": "把追逐关系倒过来，让玩家既要躲法术，也要主动找机会吓人。正面防御、绕背收益和灯笼陶罐提供不同应对方式，强化选择则让三夜之间保留成长。",
-      "poster": "ghost-house.png",
-      "media": "ghost-house.png"
+      "poster": "ghost-house-static.webp",
+      "media": ""
     },
     {
       "id": "tidal-village",
@@ -67,8 +67,8 @@ window.PORTFOLIO = {
       "description": "守住海边村落的灯塔，抵御三潮海怪进攻。建造鱼叉弩台、盐罐炮、网架与路障，调动民兵拦截敌人，最后迎战首领。",
       "contribution": "低滩前哨造价低，退潮时更有优势，涨潮后却需要支架保护。村民岗位由守军和生产共用，开战后锁定分工；打捞也会占用民兵，敌人逼近时可以撤回。",
       "lesson": "同一批资源既要换取眼前火力，也要留给下一次涨潮与维修。波次预告、转向停火提示和战后贡献记录帮助玩家判断防线缺口，再决定补建、升级还是重新调兵。",
-      "poster": "tidal-village.png",
-      "media": "tidal-village.png"
+      "poster": "tidal-village-static.webp",
+      "media": ""
     },
     {
       "id": "myth-clash",
@@ -87,8 +87,8 @@ window.PORTFOLIO = {
       "contribution": "轻击、重击、格挡、投技、闪进和能量技构成基础攻防。角色各有不同的移动方式和技能组合，也可搭配均衡、连袭或疾影流派，调整出招节奏。",
       "lesson": "短回合让玩家更快进入交手。练习模式显示判定距离与伤害，赛后列出命中率、格挡和最长连段，帮助玩家回看哪些招式奏效、哪些进攻被挡住。",
       "scope": "同屏双人、人机和练习模式原型；尚未加入联网对战。此处展示游戏画面与设计说明。",
-      "media": "myth-clash.webp",
-      "poster": "myth-clash.webp",
+      "media": "",
+      "poster": "myth-clash-static.webp",
       "availability": "Windows · 原型展示",
       "featured": true
     },
@@ -109,8 +109,8 @@ window.PORTFOLIO = {
       "contribution": "潮汐每 9 分钟循环一次，低潮开放近路与采集点，涨潮封闭部分通道。出发时需要留意生命、体力和饱食；背包、制作和海图界面会暂停时间。",
       "lesson": "潮位变化直接决定哪些道路可以通行，出发与返程都需要据此规划。涨潮前约 90 秒提示返程；受困后会回到安全岸点并损失少量木材，保留失误的代价，也让探索能够继续。",
       "scope": "六个外部区域和沉船船舱可探索。观测站、灯塔目前为外部修复点，尚未制作内部楼层。",
-      "media": "tideborne.webp",
-      "poster": "tideborne.webp",
+      "media": "",
+      "poster": "tideborne-static.webp",
       "availability": "Windows · 原型展示",
       "featured": true
     },
@@ -131,8 +131,8 @@ window.PORTFOLIO = {
       "contribution": "普通背包容量更大，其中未受保护的物资在失败时会丢失；护巢袋只有两格，且只能放材料。西侧根洞常开，需要停留 8 秒；北侧信标需要树脂并等待 10 秒，受击或离开范围会中断撤离。",
       "lesson": "拾取时需要同时考虑背包容量、材料用途和失败损失。两个撤离点的位置与启动条件不同，玩家可结合所在区域和手头材料选择回程路线。带回的物资用于点灯委托和巢屋升级。",
       "scope": "单人首版，已串起搜索、战斗、撤离和巢屋升级；尚未加入联机与完整装备交易、制作系统。",
-      "media": "homing-mosswood.webp",
-      "poster": "homing-mosswood.webp",
+      "media": "",
+      "poster": "homing-mosswood-static.webp",
       "availability": "Windows · 原型展示",
       "featured": true
     },
@@ -153,8 +153,8 @@ window.PORTFOLIO = {
       "contribution": "四片街区分别奖励猎弩伤害、拾取范围、生命上限和呼哨冷却强化，每区每局只能获得一次。呼哨可下达定向指令；伙伴升级时能选择成长路线，再逐步进化。",
       "lesson": "探索奖励提前显示，方便按当前武器与伙伴状态选择路线。指引优先显示受困伙伴，其次是街区；首领开战后切换为首领目标，避免战斗时还被提示去别处探索。",
       "scope": "Windows · 原型展示，含营地、伙伴成长、街区探索和首领战；此处展示当前首关画面。",
-      "media": "wild-companions.webp",
-      "poster": "wild-companions.webp",
+      "media": "",
+      "poster": "wild-companions-static.webp",
       "availability": "Windows · 原型展示",
       "featured": true
     },
@@ -175,8 +175,8 @@ window.PORTFOLIO = {
       "contribution": "首关有十八处食屑、四个后续检查点、推箱和限时卷闸门。紫边影区可以回墨；门关闭后仍可从上层雨棚绕行。轻松模式会将墨耗减半，并放慢 NPC。",
       "lesson": "影子同时承担落脚点和移动载体。画面中的投影与可进入区域使用同一套判定，影跃也会检查实际路径；再用跳跃缓冲与离地宽限，减少操作误差对观察和换乘的干扰。",
       "scope": "Windows · 原型展示，已实现潜影、影跃与两条通路；尚未加入正式音效、音乐及多关内容。",
-      "media": "shadow-foraging.webp",
-      "poster": "shadow-foraging.webp",
+      "media": "",
+      "poster": "shadow-foraging-static.webp",
       "availability": "Windows · 原型展示",
       "featured": true
     },
@@ -198,7 +198,7 @@ window.PORTFOLIO = {
       "lesson": "落点预告留出移动时间，靠边停稳后自动卸货，让操作集中在接取和重心调整。每 22 秒进入下一波，每第四波适当减缓投放，给玩家整理桌面的机会。",
       "scope": "网页街机原型，可在浏览器直接试玩，支持鼠标、键盘和触屏。",
       "media": "temple-arcade-preview.webp",
-      "poster": "temple-arcade.webp"
+      "poster": "temple-arcade-static.webp"
     },
     {
       "id": "factory",
@@ -218,7 +218,7 @@ window.PORTFOLIO = {
       "lesson": "工位统计和事件记录展示伤害、漏处理与逃逸原因，方便找到需要调整的环节。同成本的 A/B 布局可以反复重试，比较先染油和先点火的收益差异，理解机器顺序如何影响结果。",
       "scope": "五张订单的网页原型，可直接试玩。刷新页面会重新开始，未加入随机商店或局外养成。",
       "media": "monster-factory-preview.webp",
-      "poster": "monster-factory.webp"
+      "poster": "monster-factory-static.webp"
     }
   ],
   "excludedGameIds": [
