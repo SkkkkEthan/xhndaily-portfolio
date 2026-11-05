@@ -15,7 +15,7 @@
   };
   let motionPaused = reduced.matches;
   try { motionPaused ||= localStorage.getItem('portfolio-motion-paused') === 'true'; } catch {}
-  try { if (localStorage.getItem('portfolio-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch {}
+  try { document.documentElement.dataset.theme = localStorage.getItem('portfolio-theme-v2') === 'light' ? 'light' : 'dark'; } catch {}
   const animate = (element, frames, options = {}, keyboard = false) => {
     if (motionPaused || reduced.matches || keyboard || !element?.animate) return null;
     return element.animate(frames, { duration: 240, easing: 'cubic-bezier(.23,1,.32,1)', ...options });
@@ -265,11 +265,12 @@
   const focusText=document.querySelector('#focus-description');
   const descriptions=['5 年游戏策划经验，专注系统框架与玩法设计。','覆盖 PVP、PVE、GVG、GVE，关注规则与成长之间的关系。','把玩法想法做成原型，展示规则、交互和设计取舍。'];
   let focusIndex=0;
-  let lastManualFocus=0;
+  let focusTimer=0;
+  let focusHovered=false;
   let focusTextTimer=0;
   const setFocus=(index,keyboard=false,manual=false)=>{
     focusIndex=(index+focusButtons.length)%focusButtons.length;
-    if(manual)lastManualFocus=Date.now();
+    if(manual)scheduleFocusRotation();
     document.querySelector('.focus-tabs').classList.toggle('keyboard-switch',keyboard);
     focusButtons.forEach((button,i)=>{
       const selected=i===focusIndex;
@@ -294,9 +295,30 @@
     });
   });
   setFocus(0,true);
-  const focusTimer=setInterval(()=>{
-    if(heroVisible&&!motionPaused&&!document.hidden&&!detail.open&&!command.open&&Date.now()-lastManualFocus>12000&&!document.activeElement?.closest('.focus-tabs'))setFocus(focusIndex+1);
-  },6000);
+  const focusTabs = document.querySelector('.focus-tabs');
+  const scheduleFocusRotation = () => {
+    clearTimeout(focusTimer);
+    focusTimer = setTimeout(() => {
+      const keyboardFocused = focusTabs.contains(document.activeElement) && document.activeElement.matches(':focus-visible');
+      if (heroVisible && !motionPaused && !document.hidden && !detail.open && !command.open && !focusHovered && !keyboardFocused) {
+        setFocus(focusIndex + 1);
+      }
+      scheduleFocusRotation();
+    }, 3000);
+  };
+  focusTabs.addEventListener('pointerenter', event => {
+    if (event.pointerType === 'touch') return;
+    focusHovered = true;
+    clearTimeout(focusTimer);
+  });
+  focusTabs.addEventListener('pointerleave', () => {
+    focusHovered = false;
+    scheduleFocusRotation();
+  });
+  focusTabs.addEventListener('focusout', scheduleFocusRotation);
+  document.addEventListener('visibilitychange', scheduleFocusRotation);
+  scheduleFocusRotation();
+
 
   const filterButtons=[...document.querySelectorAll('[data-filter]')];
   const filterItems=[...document.querySelectorAll('#career [data-roles]')];
@@ -342,11 +364,11 @@
   const updateTheme=()=>{
     const dark=document.documentElement.dataset.theme==='dark';
     themeButton.setAttribute('aria-pressed',String(dark));themeButton.querySelector('span').textContent=dark?'浅色模式':'深色模式';
-    document.querySelector('meta[name="theme-color"]').content=dark?'#0d0f17':'#ffffff';
+    document.querySelector('meta[name="theme-color"]').content=dark?'#000000':'#ffffff';
   };
   const toggleTheme=()=>{
     const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;
-    try{localStorage.setItem('portfolio-theme',next);}catch{}updateTheme();
+    try{localStorage.setItem('portfolio-theme-v2',next);}catch{}updateTheme();
   };
   updateTheme();
   const updateMotion=()=>{
@@ -450,8 +472,7 @@
     }
   });
 
-  let heroVisible=true,eyeFrame=0;
-  const eyes=document.querySelector('.eyes-wrap');
+  let heroVisible=true;
   if('IntersectionObserver' in window){
     const heroObserver=new IntersectionObserver(entries=>{heroVisible=entries[0].isIntersecting;});heroObserver.observe(document.querySelector('.hero-section'));
     const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
@@ -459,26 +480,76 @@
     }),{rootMargin:'0px 0px -20px 0px',threshold:.07});
     if(!motionPaused){document.body.classList.add('js-reveal');document.querySelectorAll('.reveal').forEach(item=>observer.observe(item));}
   }
-  const blink=()=>{
-    if(motionPaused||!heroVisible||document.hidden)return;
-    eyes.classList.add('blink');setTimeout(()=>eyes.classList.remove('blink'),190);
-  };
-  eyes.addEventListener('click',blink);
-  addEventListener('pointermove',event=>{
-    if(motionPaused||!heroVisible||!finePointer.matches||eyeFrame)return;
-    eyeFrame=requestAnimationFrame(()=>{
-      const box=eyes.getBoundingClientRect();
-      eyes.querySelectorAll('.pupil').forEach((pupil,index)=>{
-        const cx=box.left+box.width*(index===0?.27:.73),cy=box.top+box.height*.55;
-        const dx=event.clientX-cx,dy=event.clientY-cy,distance=Math.hypot(dx,dy)||1;
-        const amount=Math.min(22,distance/18);
-        pupil.style.transform=`translate(${dx/distance*amount}px,${dy/distance*amount}px)`;
-      });eyeFrame=0;
-    });
-  },{passive:true});
-  const blinkTimer=setInterval(blink,7200);
   if(!motionPaused)document.querySelector('.hero-center').classList.add('page-enter');
   document.addEventListener('visibilitychange',()=>{if(document.hidden)document.querySelectorAll('.game-card img').forEach(img=>{img.src=img.dataset.poster;});});
   // The browser freezes timers in its back/forward cache and resumes them on return.
+  const consoleStage = document.querySelector('.console-showcase');
+  const consoleScreen = document.querySelector('#console-screen');
+  const consolePoster = document.querySelector('#console-poster');
+  const consolePause = document.querySelector('#console-pause');
+  const consoleCount = document.querySelector('#console-count');
+  const consoleTooltip = document.querySelector('.console-tooltip');
+  let consoleIndex = 0, consolePaused = false, consoleHovered = false;
+  let consoleTimer = 0, consoleRequest = 0;
+  const scheduleConsole = () => {
+    clearTimeout(consoleTimer);
+    consoleTimer = setTimeout(() => {
+      if (heroVisible && !consolePaused && !consoleHovered && !motionPaused && !document.hidden && !detail.open && !command.open && !(consoleStage.contains(document.activeElement) && document.activeElement.matches(':focus-visible'))) {
+        renderConsole(consoleIndex + 1);
+      }
+      scheduleConsole();
+    }, 5000);
+  };
+  const renderConsole = async (index, keyboard = false) => {
+    const next = (index + data.games.length) % data.games.length;
+    const game = data.games[next];
+    const request = ++consoleRequest;
+    const preview = new Image(); preview.src = game.poster;
+    try { await preview.decode(); } catch { return; }
+    if (request !== consoleRequest) return;
+    consoleIndex = next;
+    consolePoster.src = game.poster; consolePoster.alt = `${game.title}游戏画面`;
+    document.querySelector('#console-title').textContent = game.title;
+    document.querySelector('#console-type').textContent = game.type;
+    document.querySelector('#console-summary').textContent = game.summary;
+    consoleCount.textContent = `${String(next+1).padStart(2,'0')} / ${data.games.length}`;
+    consoleScreen.setAttribute('aria-label', `${game.title}：查看设计说明`);
+    animate(consolePoster, [{opacity:.45},{opacity:1}], {duration:240}, keyboard);
+  };
+  const stepConsole = (step, keyboard = false) => {
+    renderConsole(consoleIndex + step, keyboard); scheduleConsole();
+  };
+  document.querySelector('.console-prev').addEventListener('click', event => stepConsole(-1, event.detail===0));
+  document.querySelector('.console-next').addEventListener('click', event => stepConsole(1, event.detail===0));
+  document.querySelectorAll('[data-console-step]').forEach(button => button.addEventListener('click', event => stepConsole(Number(button.dataset.consoleStep),event.detail===0)));
+  consoleScreen.addEventListener('click', event => showDetail(data.games[consoleIndex], consoleScreen, event.detail===0));
+  consoleStage.addEventListener('keydown', event => {
+    if (event.key!=='ArrowLeft' && event.key!=='ArrowRight') return;
+    event.preventDefault(); stepConsole(event.key==='ArrowLeft'?-1:1,true);
+  });
+  consoleStage.addEventListener('pointerenter', event => { if(event.pointerType!=='touch'){consoleHovered=true;clearTimeout(consoleTimer);} });
+  consoleStage.addEventListener('pointerleave', () => {consoleHovered=false;consoleTooltip.hidden=true;scheduleConsole();});
+  consoleStage.addEventListener('focusin', () => clearTimeout(consoleTimer));
+  consoleStage.addEventListener('focusout', scheduleConsole);
+  consolePause.addEventListener('click', () => {
+    consolePaused=!consolePaused;
+    consolePause.setAttribute('aria-pressed',String(consolePaused));
+    consolePause.textContent=consolePaused?'继续轮播':'暂停轮播'; scheduleConsole();
+  });
+  document.querySelectorAll('[data-console-target]').forEach(button => {
+    const showTooltip = () => {
+      consoleTooltip.querySelector('strong').textContent=button.dataset.consoleLabel;
+      consoleTooltip.querySelector('small').textContent=button.dataset.consoleCopy;
+      consoleTooltip.hidden=false;
+    };
+    button.addEventListener('pointerenter', showTooltip);
+    button.addEventListener('focus', showTooltip);
+    button.addEventListener('pointerleave', () => {consoleTooltip.hidden=true;});
+    button.addEventListener('blur', () => {consoleTooltip.hidden=true;});
+    button.addEventListener('click', event => {consoleTooltip.hidden=true;goTo(button.dataset.consoleTarget,event.detail===0);});
+  });
+  document.addEventListener('visibilitychange',scheduleConsole);
+  renderConsole(0,true); scheduleConsole();
 })();
+
 

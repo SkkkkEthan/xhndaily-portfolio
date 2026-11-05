@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="邢皓楠的个人网站：系统策划求职信息、AI Coding 游戏作品、工作履历、教育背景与联系方式。">
-  <meta name="theme-color" content="#ffffff"><title>邢皓楠 · 系统策划与游戏作品</title>
-  <link rel="stylesheet" href="reference.css?v=20261105webonly">
+  <meta name="theme-color" content="#000000"><title>邢皓楠 · 系统策划与游戏作品</title>
+  <link rel="stylesheet" href="reference.css?v=20261105switch1">
 </head>
 <body>
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -51,9 +51,25 @@
           <p id="focus-description" class="focus-description" role="tabpanel" aria-labelledby="focus-system">5 年游戏策划经验，专注系统框架与玩法设计。</p>
           <div class="hero-actions"><a class="button primary" href="xing-haonan-resume-2026-optimized-v2.docx" download><svg aria-hidden="true"><use href="#i-download"/></svg><span>下载完整简历</span><svg aria-hidden="true" class="button-arrow"><use href="#i-arrow"/></svg></a><a class="quiet-link" href="#games">看看我的作品 <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
         </div>
-        <button class="eyes-wrap" aria-label="让眼睛眨一下" title="我在看你的鼠标">
-          <svg class="eyes" viewBox="0 0 400 185" aria-hidden="true"><g class="eye-shell"><ellipse cx="108" cy="109" rx="82" ry="99"/><ellipse cx="292" cy="109" rx="82" ry="99"/></g><g class="pupils"><g class="pupil" data-eye="left"><circle cx="108" cy="120" r="43"/><circle class="eye-shine" cx="121" cy="106" r="9"/></g><g class="pupil" data-eye="right"><circle cx="292" cy="120" r="43"/><circle class="eye-shine" cx="305" cy="106" r="9"/></g></g></svg>
-        </button>
+        <div class="console-showcase" aria-label="Switch 互动作品展台">
+          <div class="console-stage">
+            <img class="console-hardware" src="switch-studio.webp" alt="白色 Switch 掌机，屏幕展示个人游戏作品" width="1536" height="700" fetchpriority="high" decoding="async">
+            <button class="console-screen" id="console-screen" aria-label="查看当前作品设计说明">
+              <img id="console-poster" src="goodnight-count-static.webp" width="984" height="574" alt="晚安，伯爵游戏画面" fetchpriority="high" decoding="async">
+              <span class="console-screen-caption"><span id="console-type"></span><strong id="console-title">晚安，伯爵</strong><span id="console-summary"></span><span class="console-open">查看设计说明 <svg aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+            </button>
+            <button class="console-key console-prev" aria-label="上一款作品" title="上一款作品"></button>
+            <button class="console-key console-next" aria-label="下一款作品" title="下一款作品"></button>
+            <button class="console-key console-x" data-console-target="#home" data-console-label="基本信息" data-console-copy="个人简介与专业技能" aria-label="X：前往基本信息"></button>
+            <button class="console-key console-y" data-console-target="#career" data-console-label="工作履历" data-console-copy="任职公司与商业项目" aria-label="Y：前往工作履历"></button>
+            <button class="console-key console-a" data-console-target="#education" data-console-label="教育背景" data-console-copy="安徽农业大学 · 本科" aria-label="A：前往教育背景"></button>
+            <button class="console-key console-b" data-console-target="#contact" data-console-label="联系方式" data-console-copy="交流岗位、玩法与原型设计" aria-label="B：前往联系方式"></button>
+            <div class="console-tooltip" hidden><span><strong></strong><small></small></span><svg aria-hidden="true"><use href="#i-arrow"/></svg></div>
+          </div>
+          <div class="console-toolbar"><button class="console-step" data-console-step="-1" aria-label="上一款作品"><svg aria-hidden="true" class="arrow-left"><use href="#i-arrow"/></svg></button><span id="console-count">01 / 11</span><button class="console-step" data-console-step="1" aria-label="下一款作品"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><span class="console-toolbar-divider"></span><button id="console-pause" aria-pressed="false">暂停轮播</button></div>
+          <p class="console-help">点击屏幕查看作品 · 左右键切换 · X / Y / A / B 前往不同模块</p>
+          <div class="console-mobile-nav" aria-label="掌机快捷导航"><a href="#home">基本信息</a><a href="#career">工作履历</a><a href="#education">教育背景</a><a href="#contact">联系方式</a></div>
+        </div>
       </div>
       <div class="about-section section-inner">
         <div class="section-heading reveal"><h2>基本信息</h2><p>个人简介与专业技能。</p></div>
@@ -91,7 +107,7 @@
   <dialog id="detail" class="detail-dialog" aria-labelledby="detail-title"><button class="dialog-close" aria-label="关闭项目详情"><svg aria-hidden="true"><use href="#i-close"/></svg></button><div id="detail-body"></div></dialog>
   <dialog id="command" class="command-dialog" aria-labelledby="command-title"><div class="command-heading"><h2 id="command-title">搜索与快捷操作</h2><span>ESC</span><button class="dialog-close" aria-label="关闭快捷操作"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div><label class="command-search"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="command-input" type="search" placeholder="搜索作品、任职公司或快捷操作…" autocomplete="off" aria-label="搜索作品、任职公司或快捷操作"></label><div class="quick-actions"><button data-action="resume"><svg aria-hidden="true"><use href="#i-download"/></svg>下载简历</button><button data-action="copy"><svg aria-hidden="true"><use href="#i-copy"/></svg>复制邮箱</button><button data-action="theme" aria-pressed="false"><svg aria-hidden="true"><use href="#i-sun"/></svg><span>深色模式</span></button><button data-action="motion" aria-pressed="false"><svg aria-hidden="true"><use href="#i-spark"/></svg><span>暂停动效</span></button></div><div id="command-results" class="command-results"></div><div class="command-footer"><span>↑ ↓ 选择 · Enter 打开</span><span>Ctrl / ⌘ K</span></div></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="content.js?v=20261105static2"></script><script src="reference.js?v=20261105static2"></script>
+  <script src="content.js?v=20261105switch1"></script><script src="reference.js?v=20261105switch1"></script>
 </body>
 </html>
 
