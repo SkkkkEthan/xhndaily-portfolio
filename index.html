@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="邢皓楠的个人网站：系统策划求职信息、AI Coding 游戏作品、工作履历、教育背景与联系方式。">
   <meta name="theme-color" content="#000000"><title>邢皓楠 · 系统策划与游戏作品</title>
-  <link rel="stylesheet" href="reference.css?v=20261106carousel3">
+  <link rel="stylesheet" href="reference.css?v=20261106staticfocus1">
 </head>
 <body>
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -43,12 +43,11 @@
           <div class="hero-greeting"><span class="greeting-emoji" role="img" aria-label="挥手打招呼">👋</span><span>你好，很高兴认识你</span></div>
           <h1>我是 <span>邢皓楠</span></h1>
           <p class="job-intent">求职意向：<strong>系统策划</strong></p>
-          <div class="focus-tabs" role="tablist" aria-label="专业方向">
-            <button id="focus-system" role="tab" aria-controls="focus-description" aria-selected="true" tabindex="0" data-focus="0" class="focus-tab system selected"><svg aria-hidden="true"><use href="#i-system"/></svg><span>系统策划</span></button>
-            <button id="focus-game" role="tab" aria-controls="focus-description" aria-selected="false" tabindex="-1" data-focus="1" class="focus-tab gameplay"><svg aria-hidden="true"><use href="#i-game"/></svg><span>玩法设计</span></button>
-            <button id="focus-ai" role="tab" aria-controls="focus-description" aria-selected="false" tabindex="-1" data-focus="2" class="focus-tab coding"><svg aria-hidden="true"><use href="#i-spark"/></svg><span>AI Coding</span></button>
-          </div>
-          <p id="focus-description" class="focus-description" role="tabpanel" aria-labelledby="focus-system">5 年游戏策划经验，专注系统框架与玩法设计。</p>
+          <ul class="expertise-list" aria-label="专业方向">
+            <li class="expertise-item"><svg aria-hidden="true"><use href="#i-system"/></svg><div><h2>系统策划</h2><p>5 年游戏策划经验，专注系统框架与玩法设计。</p></div></li>
+            <li class="expertise-item"><svg aria-hidden="true"><use href="#i-game"/></svg><div><h2>玩法设计</h2><p>覆盖 PVP、PVE、GVG、GVE，关注规则与成长之间的关系。</p></div></li>
+            <li class="expertise-item"><svg aria-hidden="true"><use href="#i-spark"/></svg><div><h2>AI Coding</h2><p>把玩法想法做成原型，展示规则、交互和设计取舍。</p></div></li>
+          </ul>
           <div class="hero-actions"><a class="button primary" href="xing-haonan-resume-2026-optimized-v2.docx" download><svg aria-hidden="true"><use href="#i-download"/></svg><span>下载完整简历</span><svg aria-hidden="true" class="button-arrow"><use href="#i-arrow"/></svg></a><a class="quiet-link" href="#games">看看我的作品 <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
         </div>
         <div class="console-showcase" aria-label="Switch 互动作品展台">
@@ -68,7 +67,6 @@
           </div>
           <div class="console-toolbar"><button class="console-step" data-console-step="-1" aria-label="上一款作品"><svg aria-hidden="true" class="arrow-left"><use href="#i-arrow"/></svg></button><span id="console-count">01 / 11</span><button class="console-step" data-console-step="1" aria-label="下一款作品"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><span class="console-toolbar-divider"></span><button id="console-pause" aria-pressed="false">暂停轮播</button></div>
           <p class="console-help">点击屏幕进入作品 · 左右键切换 · X / Y / A / B 前往不同模块</p>
-          <div class="console-mobile-nav" aria-label="掌机快捷导航"><a href="#home">基本信息</a><a href="#career">工作履历</a><a href="#education">教育背景</a><a href="#contact">联系方式</a></div>
         </div>
       </div>
       <div class="about-section section-inner">
@@ -107,7 +105,7 @@
   <dialog id="detail" class="detail-dialog" aria-labelledby="detail-title"><button class="dialog-close" aria-label="关闭项目详情"><svg aria-hidden="true"><use href="#i-close"/></svg></button><div id="detail-body"></div></dialog>
   <dialog id="command" class="command-dialog" aria-labelledby="command-title"><div class="command-heading"><h2 id="command-title">搜索与快捷操作</h2><span>ESC</span><button class="dialog-close" aria-label="关闭快捷操作"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div><label class="command-search"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="command-input" type="search" placeholder="搜索作品、任职公司或快捷操作…" autocomplete="off" aria-label="搜索作品、任职公司或快捷操作"></label><div class="quick-actions"><button data-action="resume"><svg aria-hidden="true"><use href="#i-download"/></svg>下载简历</button><button data-action="copy"><svg aria-hidden="true"><use href="#i-copy"/></svg>复制邮箱</button><button data-action="theme" aria-pressed="false"><svg aria-hidden="true"><use href="#i-sun"/></svg><span>深色模式</span></button><button data-action="motion" aria-pressed="false"><svg aria-hidden="true"><use href="#i-spark"/></svg><span>暂停动效</span></button></div><div id="command-results" class="command-results"></div><div class="command-footer"><span>↑ ↓ 选择 · Enter 打开</span><span>Ctrl / ⌘ K</span></div></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="content.js?v=20261106carousel3"></script><script src="reference.js?v=20261106carousel3"></script>
+  <script src="content.js?v=20261106staticfocus1"></script><script src="reference.js?v=20261106staticfocus1"></script>
 </body>
 </html>
 

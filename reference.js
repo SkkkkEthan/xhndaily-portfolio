@@ -261,65 +261,6 @@
     previewControllers.forEach(controller => controller.refresh()); drainPreviews();
   });
 
-  const focusButtons=[...document.querySelectorAll('[data-focus]')];
-  const focusText=document.querySelector('#focus-description');
-  const descriptions=['5 年游戏策划经验，专注系统框架与玩法设计。','覆盖 PVP、PVE、GVG、GVE，关注规则与成长之间的关系。','把玩法想法做成原型，展示规则、交互和设计取舍。'];
-  let focusIndex=0;
-  let focusTimer=0;
-  let focusHovered=false;
-  let focusTextTimer=0;
-  const setFocus=(index,keyboard=false,manual=false)=>{
-    focusIndex=(index+focusButtons.length)%focusButtons.length;
-    if(manual)scheduleFocusRotation();
-    document.querySelector('.focus-tabs').classList.toggle('keyboard-switch',keyboard);
-    focusButtons.forEach((button,i)=>{
-      const selected=i===focusIndex;
-      button.classList.toggle('selected',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;
-      button.style.order=selected?'2':String(i===(focusIndex+2)%3?1:3);
-    });
-    focusText.setAttribute('aria-labelledby',focusButtons[focusIndex].id);
-    clearTimeout(focusTextTimer);
-    if(motionPaused||keyboard){focusText.textContent=descriptions[focusIndex];return;}
-    animate(focusText,[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-4px)'}],{duration:100});
-    focusTextTimer=setTimeout(()=>{
-      focusText.textContent=descriptions[focusIndex];
-      animate(focusText,[{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:220});
-    },100);
-  };
-  focusButtons.forEach(button=>{
-    button.addEventListener('click',event=>setFocus(Number(button.dataset.focus),event.detail===0,true));
-    button.addEventListener('keydown',event=>{
-      let next=focusIndex;
-      if(event.key==='ArrowRight')next++;else if(event.key==='ArrowLeft')next--;else if(event.key==='Home')next=0;else if(event.key==='End')next=2;else return;
-      event.preventDefault();setFocus(next,true,true);focusButtons[focusIndex].focus();
-    });
-  });
-  setFocus(0,true);
-  const focusTabs = document.querySelector('.focus-tabs');
-  const scheduleFocusRotation = () => {
-    clearTimeout(focusTimer);
-    focusTimer = setTimeout(() => {
-      const keyboardFocused = focusTabs.contains(document.activeElement) && document.activeElement.matches(':focus-visible');
-      if (heroVisible && !motionPaused && !document.hidden && !detail.open && !command.open && !focusHovered && !keyboardFocused) {
-        setFocus(focusIndex + 1);
-      }
-      scheduleFocusRotation();
-    }, 3000);
-  };
-  focusTabs.addEventListener('pointerenter', event => {
-    if (event.pointerType === 'touch') return;
-    focusHovered = true;
-    clearTimeout(focusTimer);
-  });
-  focusTabs.addEventListener('pointerleave', () => {
-    focusHovered = false;
-    scheduleFocusRotation();
-  });
-  focusTabs.addEventListener('focusout', scheduleFocusRotation);
-  document.addEventListener('visibilitychange', scheduleFocusRotation);
-  scheduleFocusRotation();
-
-
   const filterButtons=[...document.querySelectorAll('[data-filter]')];
   const filterItems=[...document.querySelectorAll('#career [data-roles]')];
   filterButtons.forEach(button=>button.addEventListener('click',event=>{
